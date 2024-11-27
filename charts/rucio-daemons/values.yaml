@@ -34,7 +34,7 @@ necromancerCount: 0
 
 image:
   repository: rucio/rucio-daemons
-  tag: release-34.2.0
+  tag: release-35.0.0
   pullPolicy: Always
 
 imagePullSecrets: []

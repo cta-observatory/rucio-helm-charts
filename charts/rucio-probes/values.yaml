@@ -6,7 +6,7 @@ replicaCount: 1
 
 image:
   repository: rucio/probes
-  tag: 34.2.0
+  tag: 35.0.0
   pullPolicy: Always
 
 imagePullSecrets: []
