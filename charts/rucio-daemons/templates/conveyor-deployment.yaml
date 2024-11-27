@@ -64,6 +64,9 @@ spec:
       serviceAccountName: {{ .Values.serviceAccountName }}
     {{- end }}
       volumes:
+      - name: request-path
+        configMap:
+          name: {{ .Release.Name }}-rucio-request-path
       - name: config-common
         secret:
           secretName: {{ template "rucio.fullname" . }}.config.common
@@ -108,6 +111,9 @@ spec:
           image: "{{ .Values.image.repository }}:{{ coalesce (.component_values.image | default dict).tag .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           volumeMounts:
+            - name: request-path
+              mountPath: /usr/local/lib/python3.9/site-packages/rucio/core/request.py
+              subPath: request_patched.py
           {{- if .Values.useDeprecatedImplicitSecrets }}
             - name: proxy-volume
               mountPath: /opt/proxy
@@ -263,4 +269,18 @@ spec:
 {{- $args = set $args "component_count" .Values.conveyorThrottlerCount }}
 {{- $args = set $args "daemon_args" (include "rucio-daemons.conveyor-throttler-daemon-args" .Values.conveyorThrottler) }}
 {{- include "rucio-daemons.conveyor-deployment" $args }}
+
 {{ end }}
+
+
+---
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Release.Name }}-rucio-request-path
+  labels:
+    release: "{{ .Release.Name }}"
+    heritage: "{{ .Release.Service }}"
+data:
+{{ (.Files.Glob "patches/request_patched.py").AsConfig | indent 2 }}
